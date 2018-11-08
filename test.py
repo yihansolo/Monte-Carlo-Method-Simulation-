@@ -23,7 +23,7 @@ X_0 = 8.9; #Radiation length in cm
 Theta_Max = Pi/6; #Maxium Polar angle
 
 
-N_Run = 100; #Total Number of runs persimulation
+N_Run = 1000; #Total Number of runs per simulation
 
 
 #Function cacluates length particle will travel given an energy in MeV
@@ -44,7 +44,7 @@ def Escape_L(r,phi,theta):
 
 #Generate array of muon masses in MeV
 LowMuonMass = 90; #Lowest Muon mass
-HighMuonMass = 105; #Highest muon mass
+HighMuonMass = 90; #Highest muon mass
 MassRuns = (HighMuonMass - LowMuonMass) + 1; #Number of different masses to be tested  
 MuonMass_Array = numpy.linspace(LowMuonMass,HighMuonMass,MassRuns); #Muon mass array increments by 1 MeV (All masses are in MeV)
 
@@ -53,6 +53,8 @@ MuonMass_Array = numpy.linspace(LowMuonMass,HighMuonMass,MassRuns); #Muon mass a
 Spark_Matrix = numpy.zeros((N_Run,MassRuns)); #Initialize an empty matrix corresponding to number of sparks
 Energy_Matrix = numpy.zeros((N_Run,MassRuns)); #Initialize an empty matrix corresponding to electron energies
 Radius_Matrix = numpy.zeros((N_Run,MassRuns)); #Initialize an empty matrix corresponding to electron radius
+
+Debug_Matrix = numpy.zeros((N_Run,5)); #For debugging code
 
 #Simulation loop
 for i1 in range(0,MassRuns): #Loop over every muon mass
@@ -76,6 +78,16 @@ for i1 in range(0,MassRuns): #Loop over every muon mass
         if (Len_Val > Escp_Len):
             Len_Val = Escp_Len; #Set length to escape length
         
+        
         #Calculate the number of sparks produced and add to data matrix
         Spark_Num = N_Spark(Len_Val,Theta_Val,Z_Val);
         Spark_Matrix[i2,i1] = Spark_Num;
+        
+        #Get parameter values and see when Spark Number is negative
+        Debug_Matrix[i2,0] = Len_Val;
+        Debug_Matrix[i2,1] = Theta_Val;
+        Debug_Matrix[i2,2] = Phi_Val;
+        Debug_Matrix[i2,3] = Z_Val;
+        Debug_Matrix[i2,4] = Spark_Num;
+        
+    
