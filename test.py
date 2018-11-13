@@ -38,7 +38,7 @@ def N_Spark(L,Theta,Z_0):
 
 #Escape length function (calculates escape length for given theta, r and phi)
 def Escape_L(r,phi,theta):
-    L_escp = -r*math.cos(phi) + math.sqrt(r**2 * (math.cos(phi))**2 + (R_Det**2 - r**2))/(math.sin(theta))*(T_P/(T_P + T_G));
+    L_escp = (-r*math.cos(phi) + math.sqrt(r**2 * (math.cos(phi))**2 + (R_Det**2 - r**2)))/(math.sin(theta))*(T_P/(T_P + T_G));
     return L_escp;
     
 
