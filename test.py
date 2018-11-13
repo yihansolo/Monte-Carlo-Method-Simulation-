@@ -23,7 +23,7 @@ X_0 = 8.9; #Radiation length in cm
 Theta_Max = Pi/6; #Maxium Polar angle
 
 
-N_Run = 100; #Total Number of runs persimulation
+N_Run = 10000; #Total Number of runs per simulation
 
 
 #Function cacluates length particle will travel given an energy in MeV
@@ -38,7 +38,7 @@ def N_Spark(L,Theta,Z_0):
 
 #Escape length function (calculates escape length for given theta, r and phi)
 def Escape_L(r,phi,theta):
-    L_escp = -r*math.cos(phi) + math.sqrt(R_Det**2 - r**2)/(math.sin(theta)*(T_P/(T_P + T_G)));
+    L_escp = -r*math.cos(phi) + math.sqrt(r**2 * (math.cos(phi))**2 + (R_Det**2 - r**2))/(math.sin(theta))*(T_P/(T_P + T_G));
     return L_escp;
     
 
@@ -53,6 +53,8 @@ MuonMass_Array = numpy.linspace(LowMuonMass,HighMuonMass,MassRuns); #Muon mass a
 Spark_Matrix = numpy.zeros((N_Run,MassRuns)); #Initialize an empty matrix corresponding to number of sparks
 Energy_Matrix = numpy.zeros((N_Run,MassRuns)); #Initialize an empty matrix corresponding to electron energies
 Radius_Matrix = numpy.zeros((N_Run,MassRuns)); #Initialize an empty matrix corresponding to electron radius
+
+#Debug_Matrix = numpy.zeros((N_Run,5)); #For debugging code
 
 #Simulation loop
 for i1 in range(0,MassRuns): #Loop over every muon mass
@@ -70,12 +72,17 @@ for i1 in range(0,MassRuns): #Loop over every muon mass
         
         #Calculate length and escape length
         Len_Val = StoppingLen(Electron_En);
-        Escp_Len = Escape_L(r_Val,Theta_Val,Phi_Val);
+        Escp_Len = Escape_L(r_Val,Phi_Val,Theta_Val);
         
         #Compare escape length and Length
         if (Len_Val > Escp_Len):
             Len_Val = Escp_Len; #Set length to escape length
         
+        
         #Calculate the number of sparks produced and add to data matrix
         Spark_Num = N_Spark(Len_Val,Theta_Val,Z_Val);
         Spark_Matrix[i2,i1] = Spark_Num;
+        
+        
+    
+
