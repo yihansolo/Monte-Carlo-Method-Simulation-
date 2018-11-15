@@ -16,6 +16,7 @@ Created on Tue Nov 13 14:44:24 2018
 
 #Import modules
 #Import all needed modules
+from  __future__ import division
 import random;
 import numpy;
 import math;
@@ -33,8 +34,7 @@ X_0 = 8.9; #Radiation length in cm
 Theta_Max = Pi/6; #Maxium Polar angle
 N_Exp = 43; #Number of muon decays observed experimentally
 N_Run = 10000; #Total Number of runs per simulation
-N_exp_array=[4,7,13,16,4] 
-S=[]
+ 
  
  #Function cacluates length particle will travel given an energy in MeV
 def StoppingLen(E_Val):
@@ -54,13 +54,6 @@ def Escape_L(r,phi,theta):
 def NSim(rad,E_e,m_mu):
     N_Val = rad*(m_mu*E_e)**2 *(3 - (4*E_e)/(m_mu))
     return N_Val #Returns un normalized N_Sim Value
-def res_sum(AssociatedDecay):
-    sum=0 
-    for k1 in range(len(AssociatedDecay)-1):
-        res_sq=(N_exp_array[k1-2]-AssociatedDecay[k1])**2
-        sum=sum+res_sq
-    return res_sq
-    
     
  #Generate array of muon masses in MeV
 LowMuonMass = 80; #Lowest Muon mass
@@ -114,17 +107,59 @@ for i1 in range(0,MassRuns): #Loop over every muon mass
     #Get the normalization constant
     D = N_Exp/(EventSum);
     #Scale the Muon Decay column by the calculated normalization factor
-    MuonDec_Matrix[:,i1] = D*MuonDec_Matrix[:,i1];    
-           
+    MuonDec_Matrix[:,i1] = D*MuonDec_Matrix[:,i1];                    
         
 ##Data Analysis Section##
 #For each number of sparks determine how many muon decays occured
 #for j0 in range(0,MassRuns)
- #Which mass run is being considered
-for j0 in range(0,MassRuns):
-    SparkArray = [1,2,3,4,5,6,7,8];
+j0 = 1; #Which mass run is being considered
+SparkArray = [1,2,3,4,5,6,7,8];
+AssociatedDecay = array.array('d');
+for j1 in range(0,8): #Loop over all possible numbers of sparks
+    IndxArray = array.array('d'); #Location of all j1 sparks in the spark matrix
+    #Find the indicies of all n_Spark = j1
+    for j2 in range(0,N_Run):
+        if (j1 == Spark_Matrix[j2,j0]):
+            IndxArray.append(j2);
+    
+    #Sum over all the indices in the muon decay array to determine the number of decays with n_spark
+    Muon_Sum = 0;
+    for j3 in range(0,len(IndxArray)):
+        IndVal = int(IndxArray[j3])
+        Muon_Sum = Muon_Sum + MuonDec_Matrix[IndVal,j0];
+    AssociatedDecay.append(Muon_Sum); #Append the number of muon decays
+    print(Muon_Sum)
+
+#Experimental Data 
+ExpSpark = [3, 4, 5, 6, 7]                  # number of sparks
+ExpDecayRate = [4, 7, 13, 16, 4]            # number of decays
+ExpErrorBars = [2, 2.65, 3.61, 4, 2]        # length of error bars
+
+#Plot the number of muon decays vs number of sparks
+plt.bar(SparkArray,AssociatedDecay, color = (0.8,0.2,0.2), label='Simulation', zorder=1)
+plt.title("$M_{\mu}$ = " + str(MuonMass_Array[j0]) + " MeV");
+plt.xlabel("Number of Sparks");
+plt.ylabel("Number of Muon Decays");
+plt.scatter(ExpSpark,ExpDecayRate, color = (0,0,0), label='Experimental Data', zorder=3)
+plt.errorbar(ExpSpark,ExpDecayRate, yerr=ExpErrorBars, color = (0,0,0), linestyle='none', zorder=2)
+plt.legend(loc='upper left')
+plt.show()
+
+
+#Function will only plot input muon mass 
+#Define a function that will only plot a given mass
+def PlotMass(Mass_Mu):
+    #Convert Muon Mass to index
+    MassIndx = Mass_Mu - LowMuonMass;
+    #Return nothing if Mass is out of range
+    if (MassIndx > MassRuns or MassIndx < 0):
+        print("Invalid Muon Mass");
+        return None;
+    #Make the plot using the above code, setting j0 = MassIndex
+    j0 = MassIndx; #Which mass run is being considered
+    SparkArray = [0,1,2,3,4,5,6,7,8];
     AssociatedDecay = array.array('d');
-    for j1 in range(0,8): #Loop over all possible numbers of sparks
+    for j1 in range(0,9): #Loop over all possible numbers of sparks
         IndxArray = array.array('d'); #Location of all j1 sparks in the spark matrix
         #Find the indicies of all n_Spark = j1
         for j2 in range(0,N_Run):
@@ -138,30 +173,20 @@ for j0 in range(0,MassRuns):
             Muon_Sum = Muon_Sum + MuonDec_Matrix[IndVal,j0];
         AssociatedDecay.append(Muon_Sum); #Append the number of muon decays
         print(Muon_Sum)
-    #Calculate squared residuals 
-    sum=res_sum(AssociatedDecay)
-    S.append(sum)
-
-
-#Experimental Data 
-ExpSpark = [3, 4, 5, 6, 7]                  # number of sparks
-ExpDecayRate = [4, 7, 13, 16, 4]            # number of decays
-ExpErrorBars = [2, 2.65, 3.61, 4, 2]        # length of error bars
-
-#Plot the number of muon decays vs number of sparks
-plt.figure(1)
-plt.bar(SparkArray,AssociatedDecay, color = (0.8,0.2,0.2), label='Simulation', zorder=1)
-plt.title("")
-plt.xlabel("Number of Sparks");
-plt.ylabel("Number of Muon Decays");
-plt.scatter(ExpSpark,ExpDecayRate, color = (0,0,0), label='Experimental Data', zorder=3)
-plt.errorbar(ExpSpark,ExpDecayRate, yerr=ExpErrorBars, color = (0,0,0), linestyle='none', zorder=2)
-plt.legend(loc='upper left')
-
-plt.figure(2)
-x=[]
-for k2 in range(80,111):
-    x.append(k2)
-plt.scatter(x,S)
-
-plt.show()
+    
+    #Experimental Data 
+    ExpSpark = [3, 4, 5, 6, 7]                  # number of sparks
+    ExpDecayRate = [4, 7, 13, 16, 4]            # number of decays
+    ExpErrorBars = [2, 2.65, 3.61, 4, 2]        # length of error bars
+    
+    #Plot the number of muon decays vs number of sparks
+    plt.bar(SparkArray,AssociatedDecay, color = (0.8,0.2,0.2), label='Simulation', zorder=1)
+    plt.title("$M_{\mu}$ = " + str(MuonMass_Array[j0]) + " MeV");
+    plt.xlabel("Number of Sparks");
+    plt.ylabel("Number of Muon Decays");
+    plt.scatter(ExpSpark,ExpDecayRate, color = (0,0,0), label='Experimental Data', zorder=3)
+    plt.errorbar(ExpSpark,ExpDecayRate, yerr=ExpErrorBars, color = (0,0,0), linestyle='none', zorder=2)
+    plt.legend(loc='upper left')
+    plt.show()
+    
+    return None;
