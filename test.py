@@ -56,8 +56,8 @@ def NSim(rad,E_e,m_mu):
     return N_Val #Returns un normalized N_Sim Value
 def res_sum(AssociatedDecay):
     sum=0 
-    for k1 in range(2,len(AssociatedDecay)-1):
-        res_sq=(N_exp_array[k1-2]-AssociatedDecay[k1])**2
+    for k1 in range(3,len(AssociatedDecay)-1):
+        res_sq=(N_exp_array[k1-3]-AssociatedDecay[k1])**2
         sum=sum+res_sq
     return res_sq
     
@@ -122,9 +122,9 @@ for i1 in range(0,MassRuns): #Loop over every muon mass
 #for j0 in range(0,MassRuns)
  #Which mass run is being considered
 for j0 in range(0,MassRuns):
-    SparkArray = [1,2,3,4,5,6,7,8];
+    SparkArray = [0,1,2,3,4,5,6,7,8];
     AssociatedDecay = array.array('d');
-    for j1 in range(0,8): #Loop over all possible numbers of sparks
+    for j1 in range(0,9): #Loop over all possible numbers of sparks
         IndxArray = array.array('d'); #Location of all j1 sparks in the spark matrix
         #Find the indicies of all n_Spark = j1
         for j2 in range(0,N_Run):
@@ -137,11 +137,12 @@ for j0 in range(0,MassRuns):
             IndVal = int(IndxArray[j3])
             Muon_Sum = Muon_Sum + MuonDec_Matrix[IndVal,j0];
         AssociatedDecay.append(Muon_Sum); #Append the number of muon decays
-        print(Muon_Sum)
+        #print(Muon_Sum)
     #Calculate squared residuals 
     sum=res_sum(AssociatedDecay)
     S.append(sum)
 
+print min(S)
 
 #Experimental Data 
 ExpSpark = [3, 4, 5, 6, 7]                  # number of sparks
@@ -160,7 +161,7 @@ plt.legend(loc='upper left')
 
 plt.figure(2)
 x=[]
-for k2 in range(80,111):
+for k2 in range(LowMuonMass,HighMuonMass+1):
     x.append(k2)
 plt.scatter(x,S)
 
