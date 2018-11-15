@@ -151,7 +151,7 @@ ExpErrorBars = [2, 2.65, 3.61, 4, 2]        # length of error bars
 #Plot the number of muon decays vs number of sparks
 plt.figure(1)
 plt.bar(SparkArray,AssociatedDecay, color = (0.8,0.2,0.2), label='Simulation', zorder=1)
-plt.title("")
+plt.title("$M_{\mu}$ = " + str(MuonMass_Array[j0]) + " MeV");
 plt.xlabel("Number of Sparks");
 plt.ylabel("Number of Muon Decays");
 plt.scatter(ExpSpark,ExpDecayRate, color = (0,0,0), label='Experimental Data', zorder=3)
@@ -165,3 +165,46 @@ for k2 in range(80,111):
 plt.scatter(x,S)
 
 plt.show()
+
+def PlotMass(Mass_Mu):
+     #Convert Muon Mass to index
+     MassIndx = Mass_Mu - LowMuonMass;
+     #Return nothing if Mass is out of range
+     if (MassIndx > MassRuns or MassIndx < 0):
+         print("Invalid Muon Mass");
+         return None;
+     #Make the plot using the above code, setting j0 = MassIndex
+     j0 = MassIndx; #Which mass run is being considered
+     SparkArray = [0,1,2,3,4,5,6,7,8];
+     AssociatedDecay = array.array('d');
+     for j1 in range(0,9): #Loop over all possible numbers of sparks
+         IndxArray = array.array('d'); #Location of all j1 sparks in the spark matrix
+         #Find the indicies of all n_Spark = j1
+         for j2 in range(0,N_Run):
+             if (j1 == Spark_Matrix[j2,j0]):
+                 IndxArray.append(j2);
+         
+         #Sum over all the indices in the muon decay array to determine the number of decays with n_spark
+         Muon_Sum = 0;
+         for j3 in range(0,len(IndxArray)):
+             IndVal = int(IndxArray[j3])
+             Muon_Sum = Muon_Sum + MuonDec_Matrix[IndVal,j0];
+         AssociatedDecay.append(Muon_Sum); #Append the number of muon decays
+         print(Muon_Sum)
+     
+     #Experimental Data 
+     ExpSpark = [3, 4, 5, 6, 7]                  # number of sparks
+     ExpDecayRate = [4, 7, 13, 16, 4]            # number of decays
+     ExpErrorBars = [2, 2.65, 3.61, 4, 2]        # length of error bars
+     
+     #Plot the number of muon decays vs number of sparks
+     plt.bar(SparkArray,AssociatedDecay, color = (0.8,0.2,0.2), label='Simulation', zorder=1)
+     plt.title("$M_{\mu}$ = " + str(MuonMass_Array[j0]) + " MeV");
+     plt.xlabel("Number of Sparks");
+     plt.ylabel("Number of Muon Decays");
+     plt.scatter(ExpSpark,ExpDecayRate, color = (0,0,0), label='Experimental Data', zorder=3)
+     plt.errorbar(ExpSpark,ExpDecayRate, yerr=ExpErrorBars, color = (0,0,0), linestyle='none', zorder=2)
+     plt.legend(loc='upper left')
+     plt.show()
+     
+     return None;
