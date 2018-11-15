@@ -56,7 +56,7 @@ def NSim(rad,E_e,m_mu):
     return N_Val #Returns un normalized N_Sim Value
 def res_sum(AssociatedDecay):
     sum=0 
-    for k1 in range(len(AssociatedDecay)-1):
+    for k1 in range(2,len(AssociatedDecay)-1):
         res_sq=(N_exp_array[k1-2]-AssociatedDecay[k1])**2
         sum=sum+res_sq
     return res_sq
